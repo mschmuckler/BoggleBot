@@ -6,7 +6,7 @@ class BoggleBot
   attr_reader :board, :dictionary
   def initialize(board, dictionary)
     @board = board
-    @dictionary = filter_length(dictionary)
+    @dictionary = dictionary
     @current_position = []
     @cells_visited = []
     @partial_word = ""
@@ -105,14 +105,14 @@ class BoggleBot
 
   def locate_nearby_cells(letter)
     cell_positions = []
-    cell_positions << up if valid_next_cell?(up, letter)
-    cell_positions << up_right if valid_next_cell?(up_right, letter)
-    cell_positions << right if valid_next_cell?(right, letter)
-    cell_positions << down_right if valid_next_cell?(down_right, letter)
-    cell_positions << down if valid_next_cell?(down, letter)
-    cell_positions << down_left if valid_next_cell?(down_left, letter)
-    cell_positions << left if valid_next_cell?(left, letter)
-    cell_positions << up_left if valid_next_cell?(up_left, letter)
+    row, col = @current_position
+    DELTAS.each do |delta|
+      dx, dy = delta
+      new_pos = [row + dx, col + dy]
+      if valid_next_cell?(new_pos, letter)
+        cell_positions << new_pos
+      end
+    end
     cell_positions
   end
 
@@ -128,46 +128,6 @@ class BoggleBot
 
   def valid_next_cell?(position, letter)
     self[position] == letter && !@cells_visited.include?(position)
-  end
-
-  def up
-    [@current_position[0] - 1, @current_position[1]]
-  end
-
-  def up_right
-    [@current_position[0] - 1, @current_position[1] + 1]
-  end
-
-  def right
-    [@current_position[0], @current_position[1] + 1]
-  end
-
-  def down_right
-    [@current_position[0] + 1, @current_position[1] + 1]
-  end
-
-  def down
-    [@current_position[0] + 1, @current_position[1]]
-  end
-
-  def down_left
-    [@current_position[0] + 1, @current_position[1] - 1]
-  end
-
-  def left
-    [@current_position[0], @current_position[1] - 1]
-  end
-
-  def up_left
-    [@current_position[0] - 1, @current_position[1] - 1]
-  end
-
-  def filter_length(dictionary)
-    filtered_dict = []
-    dictionary.each do |word|
-      filtered_dict << word if word.length >= 3
-    end
-    filtered_dict
   end
 
   def display_board
@@ -210,7 +170,7 @@ class BoggleBot
 end
 
 if $PROGRAM_NAME == __FILE__
-  dictionary = File.read('dictionary.txt').split("\n")
+  dictionary = File.read('lib/dictionary.txt').split("\n")
   board = [['Y','H','E','J'],
            ['T','S','S','O'],
            ['L','A','A','C'],
