@@ -6,6 +6,8 @@ class BoggleBot
   attr_reader :board, :dictionary
   def initialize(board, dictionary)
     @board = board
+    @board_height = board.count
+    @board_width = board[0].count
     @dictionary = dictionary
     @current_position = []
     @cells_visited = []
@@ -127,6 +129,9 @@ class BoggleBot
   end
 
   def valid_next_cell?(position, letter)
+    row, col = position
+    return false if row < 0 || row >= @board_height
+    return false if col < 0 || col >= @board_width
     self[position] == letter && !@cells_visited.include?(position)
   end
 
@@ -140,40 +145,26 @@ class BoggleBot
   end
 
   def convert_to_board
-    puts "Enter board in 16 letter string"
+    puts "Enter board as a 16 letter string (all CAPS)"
     string = gets.chomp
-    board = [[],[],[],[]]
-    string.split("").each_with_index do |char, index|
+    board = [[], [], [], []]
+    string.split('').each_with_index do |char, index|
       board[index / 4] << char
     end
     @board = board
   end
 
   def [](position)
-    board_rows = board.count
-    board_cols = board[0].count
-    row = position[0]
-    col = position[1]
-    if row < 0
-      return nil
-    elsif row >= board_rows
-      return nil
-    elsif col < 0
-      return nil
-    elsif col >= board_cols
-      return nil
-    else
-      @board[row][col]
-    end
+    row, col = position
+    @board[row][col]
   end
-
 end
 
 if $PROGRAM_NAME == __FILE__
   dictionary = File.read('lib/dictionary.txt').split("\n")
   board = [['Y','H','E','J'],
            ['T','S','S','O'],
-           ['L','A','A','C'],
+           ['L','A','Q','C'],
            ['M','H','N','T']]
   bot = BoggleBot.new(board, dictionary)
   bot.display_board
